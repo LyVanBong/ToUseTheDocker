@@ -21,6 +21,6 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: passwd12345
-      ME_CONFIG_MONGODB_URL: mongodb://root:passwd12345@103.173.155.213:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:passwd12345@localhost:27017/
       ME_CONFIG_BASICAUTH_USERNAME: admin
       ME_CONFIG_BASICAUTH_PASSWORD: Passwd@12345
