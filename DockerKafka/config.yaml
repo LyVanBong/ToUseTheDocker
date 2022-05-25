@@ -1,0 +1,11 @@
+kafka:
+  brokers:
+    - broker:29092
+  # schemaRegistry:
+      # enabled: true
+      # urls: ["http://schema-registry:8081"] 
+# connect:
+  # enabled: true
+  # clusters:
+    # - name: kafka-connect
+      # url: http://connect:8083
