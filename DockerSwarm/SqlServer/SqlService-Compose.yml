@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+  mssqlserver:
+    image: mcr.microsoft.com/mssql/server
+    ports:
+      - 30001:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Passwd@123
+      - MSSQL_PID=Express
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 3
+    networks:
+      - mssql-server
+networks:
+  mssql-server:
+    driver: overlay
