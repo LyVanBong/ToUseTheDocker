@@ -1,58 +1,62 @@
-version: '3'
+version: '3.8'
 
 services:
-
-  mauticdb:
-    image: percona/percona-server
-    hostname: mauticdb
-    volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=Password@123
-    command:
-      --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
-    networks:
-      - traefik-public
-
   mautic:
-    image: mautic/mautic
-    hostname: mautic
-    links:
-      - mauticdb:mysql
-    depends_on:
-      - mauticdb
-    volumes:
-      - mautic_data:/var/www/html
-    environment:
-      - MAUTIC_DB_HOST=mauticdb
-      - MYSQL_PORT_3306_TCP=3306
-      - MAUTIC_DB_USER=root
-      - MAUTIC_DB_PASSWORD=Password@123
-      - MAUTIC_DB_NAME=mautic
-      - MAUTIC_RUN_CRON_JOBS=true
-      - MAUTIC_CRON_HUBSPOT=Enables
-    networks:
-      - traefik-public
+    image: mautic/mautic:latest
     deploy:
       labels:
-        traefik.http.routers.mautic-https.tls: 'true'
-        traefik.http.routers.mautic-https.rule: Host(`mautic.bbytegroup.com`)
-        traefik.http.routers.mautic-https.tls.certresolver: le
-        traefik.http.routers.mautic-https.entrypoints: https
-        traefik.http.routers.mautic-http.middlewares: https-redirect
-        swarmpit.service.deployment.autoredeploy: 'true'
-        traefik.constraint-label: traefik-public
-        traefik.http.routers.mautic-http.rule: Host(`mautic.bbytegroup.com`)
-        traefik.http.routers.mautic-http.entrypoints: http
-        traefik.docker.network: traefik-public
-        traefik.enable: 'true'
-        traefik.http.services.mautic.loadbalancer.server.port: '80'
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.mautic-http.rule=Host(`mautic.softty.net`)
+        - traefik.http.routers.mautic-http.entrypoints=http
+        - traefik.http.routers.mautic-http.middlewares=https-redirect
+        - traefik.http.routers.mautic-https.rule=Host(`mautic.softty.net`)
+        - traefik.http.routers.mautic-https.entrypoints=https
+        - traefik.http.routers.mautic-https.tls=true
+        - traefik.http.routers.mautic-https.tls.certresolver=le
+        - traefik.http.services.mautic.loadbalancer.server.port=80
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == worker
+    environment:
+      - MAUTIC_DB_HOST=db
+      - MAUTIC_DB_USER=mautic
+      - MAUTIC_DB_PASSWORD=mauticpass
+      - MAUTIC_DB_NAME=mautic
+    volumes:
+      - mautic_data:/var/www/html
+    networks:
+      - mautic_net
+      - traefik-public
+
+  db:
+    image: mysql:5.7
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - MYSQL_DATABASE=mautic
+      - MYSQL_USER=mautic
+      - MYSQL_PASSWORD=mauticpass
+      - MYSQL_ROOT_PASSWORD=mauticrootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - mautic_net
 
 volumes:
-  mysql_data:
-    driver: local
   mautic_data:
-    driver: local
+  db_data:
+
 networks:
+  mautic_net:
   traefik-public:
     external: true

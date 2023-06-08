@@ -1,5 +1,2 @@
 # Products
 List of products
-
-
-
