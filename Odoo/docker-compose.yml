@@ -10,10 +10,10 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.odoo-http.rule=Host(`odoo.softty.net`)
+        - traefik.http.routers.odoo-http.rule=Host(`odoo.xample.net`)
         - traefik.http.routers.odoo-http.entrypoints=http
         - traefik.http.routers.odoo-http.middlewares=https-redirect
-        - traefik.http.routers.odoo-https.rule=Host(`odoo.softty.net`)
+        - traefik.http.routers.odoo-https.rule=Host(`odoo.xample.net`)
         - traefik.http.routers.odoo-https.entrypoints=https
         - traefik.http.routers.odoo-https.tls=true
         - traefik.http.routers.odoo-https.tls.certresolver=le

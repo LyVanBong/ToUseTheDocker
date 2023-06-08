@@ -8,10 +8,10 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.mautic-http.rule=Host(`mautic.softty.net`)
+        - traefik.http.routers.mautic-http.rule=Host(`mautic.xample.net`)
         - traefik.http.routers.mautic-http.entrypoints=http
         - traefik.http.routers.mautic-http.middlewares=https-redirect
-        - traefik.http.routers.mautic-https.rule=Host(`mautic.softty.net`)
+        - traefik.http.routers.mautic-https.rule=Host(`mautic.xample.net`)
         - traefik.http.routers.mautic-https.entrypoints=https
         - traefik.http.routers.mautic-https.tls=true
         - traefik.http.routers.mautic-https.tls.certresolver=le

@@ -19,10 +19,10 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.wg-easy-http.rule=Host(`wireguard.sys.softty.net`)
+        - traefik.http.routers.wg-easy-http.rule=Host(`wireguard.sys.xample.net`)
         - traefik.http.routers.wg-easy-http.entrypoints=http
         - traefik.http.routers.wg-easy-http.middlewares=https-redirect
-        - traefik.http.routers.wg-easy-https.rule=Host(`wireguard.sys.softty.net`)
+        - traefik.http.routers.wg-easy-https.rule=Host(`wireguard.sys.xample.net`)
         - traefik.http.routers.wg-easy-https.entrypoints=https
         - traefik.http.routers.wg-easy-https.tls=true
         - traefik.http.routers.wg-easy-https.tls.certresolver=le
@@ -30,10 +30,10 @@ services:
     environment:
       # ⚠️ Required:
       # Change this to your host's public address
-      - WG_HOST=wireguard.sys.softty.net
+      - WG_HOST=wireguard.sys.xample.net
 
       # Optional:
-      - PASSWORD=B0nglv@wireguard.sys.softty.net
+      - PASSWORD=B0nglv@wireguard.sys.xample.net
       - WG_PORT=51820
       # - WG_DEFAULT_ADDRESS=10.8.0.x
       # - WG_DEFAULT_DNS=1.1.1.1
