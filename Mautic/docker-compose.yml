@@ -1,62 +1,56 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mautic:
     image: mautic/mautic:latest
+    container_name: mautic
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      - MAUTIC_DB_HOST=db
+      - MAUTIC_DB_USER=${MAUTIC_DB_USER}
+      - MAUTIC_DB_PASSWORD=${MAUTIC_DB_PASSWORD}
+      - MAUTIC_DB_NAME=${MAUTIC_DB_NAME}
+      - MAUTIC_RUN_CRON_JOBS=true
+    volumes:
+      - mautic_data:/var/www/html
+    networks:
+      - mautic-net
+      - traefik-public
     deploy:
       labels:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.mautic-http.rule=Host(`mautic.xample.net`)
+        - traefik.http.routers.mautic-http.rule=Host(`${MAUTIC_HOST}`)
         - traefik.http.routers.mautic-http.entrypoints=http
         - traefik.http.routers.mautic-http.middlewares=https-redirect
-        - traefik.http.routers.mautic-https.rule=Host(`mautic.xample.net`)
+        - traefik.http.routers.mautic-https.rule=Host(`${MAUTIC_HOST}`)
         - traefik.http.routers.mautic-https.entrypoints=https
         - traefik.http.routers.mautic-https.tls=true
         - traefik.http.routers.mautic-https.tls.certresolver=le
         - traefik.http.services.mautic.loadbalancer.server.port=80
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.role == worker
-    environment:
-      - MAUTIC_DB_HOST=db
-      - MAUTIC_DB_USER=mautic
-      - MAUTIC_DB_PASSWORD=mauticpass
-      - MAUTIC_DB_NAME=mautic
-    volumes:
-      - mautic_data:/var/www/html
-    networks:
-      - mautic_net
-      - traefik-public
 
   db:
     image: mysql:5.7
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.role == manager
+    container_name: mautic-db
+    restart: unless-stopped
     environment:
-      - MYSQL_DATABASE=mautic
-      - MYSQL_USER=mautic
-      - MYSQL_PASSWORD=mauticpass
-      - MYSQL_ROOT_PASSWORD=mauticrootpass
+      - MYSQL_DATABASE=${MAUTIC_DB_NAME}
+      - MYSQL_USER=${MAUTIC_DB_USER}
+      - MYSQL_PASSWORD=${MAUTIC_DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - mautic_net
+      - mautic-net
 
 volumes:
   mautic_data:
   db_data:
 
 networks:
-  mautic_net:
+  mautic-net:
   traefik-public:
     external: true

@@ -1,2 +1,0 @@
-# Products
-List of products

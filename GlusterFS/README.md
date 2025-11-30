@@ -1,18 +1,50 @@
-# Để cài đặt và cấu hình GlusterFS trên các node trong Swarm
-- Cài đặt GlusterFS trên mỗi node trong Swarm:
-    - sudo apt update
-    - sudo apt install glusterfs-server
-- Tạo một cụm GlusterFS với các thành viên từ các node trong Swarm:
-    - sudo gluster peer probe <IP_node_B>
-- Tạo và cấu hình một volume GlusterFS:
-    - Trên node A, chạy lệnh sau để tạo một volume GlusterFS:
-        - sudo gluster volume create nfs replica 2 transport tcp ns-4-1.softty.net:/nfs/data/docker/volumes ns-4-2.softty.net:/nfs/data/docker/volumes force
-    - Kích hoạt và bắt đầu sử dụng volume:
-        - sudo gluster volume start nfs
-- Kiểm tra trạng thái của cụm GlusterFS:
-    - sudo gluster peer status
-    - sudo gluster volume info
-- Đảm bảo rằng bạn đã cài đặt GlusterFS client trên node mà bạn muốn mount volume. Trên Ubuntu, bạn có thể cài đặt bằng lệnh sau:
-    - sudo apt-get install glusterfs-client
-- mount
-    - mount -t glusterfs ns-4-1.softty.net:nfs /volumes
+# GlusterFS Setup Guide
+
+Hướng dẫn cài đặt và cấu hình GlusterFS trên các node trong Docker Swarm.
+
+## 1. Cài đặt GlusterFS
+
+Trên mỗi node trong Swarm:
+
+```bash
+sudo apt update
+sudo apt install glusterfs-server
+```
+
+## 2. Tạo cụm GlusterFS
+
+Kết nối các node với nhau (Peer Probe):
+
+```bash
+sudo gluster peer probe <IP_node_B>
+```
+
+Kiểm tra trạng thái:
+
+```bash
+sudo gluster peer status
+```
+
+## 3. Tạo và cấu hình Volume
+
+Trên một node (ví dụ Node A):
+
+```bash
+sudo gluster volume create nfs replica 2 transport tcp ns-4-1.softty.net:/nfs/data/docker/volumes ns-4-2.softty.net:/nfs/data/docker/volumes force
+sudo gluster volume start nfs
+```
+
+Kiểm tra thông tin volume:
+
+```bash
+sudo gluster volume info
+```
+
+## 4. Mount Volume (Client)
+
+Trên node cần sử dụng volume (cài đặt client trước):
+
+```bash
+sudo apt-get install glusterfs-client
+mount -t glusterfs ns-4-1.softty.net:nfs /volumes
+```
