@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:10.11
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - matomo-net
+    # Hardening: Security Options
+    security_opt:
+      - no-new-privileges:true
+    # Hardening: Resource Limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          memory: 256M
+
+  app:
+    image: matomo:${MATOMO_VERSION:-5-apache}
+    restart: always
+    volumes:
+      - matomo:/var/www/html
+    environment:
+      - MATOMO_DATABASE_HOST=db
+      - MATOMO_DATABASE_ADAPTER=mysql
+      - MATOMO_DATABASE_TABLES_PREFIX=matomo_
+      - MATOMO_DATABASE_USERNAME=${MYSQL_USER}
+      - MATOMO_DATABASE_PASSWORD=${MYSQL_PASSWORD}
+      - MATOMO_DATABASE_DBNAME=${MYSQL_DATABASE}
+    ports:
+      - "${MATOMO_PORT:-8080}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - matomo-net
+    # Hardening: Security Options
+    security_opt:
+      - no-new-privileges:true
+    # Hardening: Resource Limits
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          memory: 256M
+
+volumes:
+  db:
+  matomo:
+
+networks:
+  matomo-net:
+    driver: bridge
