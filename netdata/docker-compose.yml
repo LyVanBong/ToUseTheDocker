@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  netdata:
+    image: netdata/netdata:latest
+    restart: always
+    pid: host
+    network_mode: host # Netdata recommends host network for best monitoring
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN # Required for some collectors
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN}
+      - NETDATA_CLAIM_URL=${NETDATA_CLAIM_URL}
+    # Security Note: Netdata needs heavy access to monitor host.
+    # Resource limits are still applied to prevent memory leak crashes.
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G # Netdata can be memory hungry with long history
+        reservations:
+          memory: 256M
+
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:

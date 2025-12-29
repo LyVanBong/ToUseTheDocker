@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    restart: always
+    volumes:
+      # Hardening: Read-only socket mount
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_USERNAME=${DOZZLE_USERNAME}
+      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD}
+    ports:
+      - "${DOZZLE_PORT:-8888}:8080"
+    networks:
+      - dozzle-net
+    # Hardening: Security Options
+    security_opt:
+      - no-new-privileges:true
+    # Hardening: Resource Limits (Lightweight Go app)
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          memory: 32M
+
+networks:
+  dozzle-net:
+    driver: bridge
